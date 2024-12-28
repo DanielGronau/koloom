@@ -1,17 +1,17 @@
 package koloom.model
 
-interface KModifier
+sealed interface KModifier
 
-object PUBLIC : KModifier
-object PRIVATE : KModifier
-object INTERNAL : KModifier
-object PROTECTED : KModifier
-object OVERRIDE : KModifier
-object OPEN : KModifier
-object CONST : KModifier
-object ABSTRACT : KModifier
-object COMPANION : KModifier
-object ANNOTATION : KModifier
-object ENUM : KModifier
-object DATA : KModifier
-object LATEINIT : KModifier
+data object PUBLIC : KModifier
+data object PRIVATE : KModifier
+data object INTERNAL : KModifier
+data object PROTECTED : KModifier
+data object OVERRIDE : KModifier
+data object OPEN : KModifier
+data object CONST : KModifier
+data object ABSTRACT : KModifier
+data object COMPANION : KModifier
+data object ANNOTATION : KModifier
+data object ENUM : KModifier
+data object DATA : KModifier
+data object LATEINIT : KModifier

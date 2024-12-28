@@ -1,7 +1,6 @@
 package koloom.model
 
 import java.io.PrintWriter
-import kotlin.reflect.KClass
 
 enum class KFieldKind {
     KVAL, KVAR
@@ -20,18 +19,25 @@ data class KField(
     override fun writeTo(writer: PrintWriter, indent: Int) {
         with(writer) {
             indent(indent)
+            modifiers.ifNotEmpty {
+                write(it.joinToString(" ", "", " ") {
+                    it.toString().lowercase()
+                })
+            }
             when (kind) {
-                KFieldKind.KVAL -> append("val")
-                KFieldKind.KVAR -> append("var")
+                KFieldKind.KVAL -> append("val ")
+                KFieldKind.KVAR -> append("var ")
+            }
+            write("$name: ")
+            fieldType.writeTo(this)
+            defaultValue?.also {
+                write(" = ")
+                write("<not yet implemented>")
             }
             appendLine()
             // SETTER
             // GETTER
         }
-    }
-
-    override fun imports(): List<KImport> {
-        return emptyList()
     }
 }
 

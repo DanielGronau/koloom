@@ -56,6 +56,7 @@ class FileScope {
             annotations = emptyList()
         ).also {
             modifierStack.clear()
+            importScope.imports += it.fieldType.imports()
         }
 
     }
@@ -65,5 +66,5 @@ class FileScope {
     }
 
     fun build(fileName: String, pkg: KPackage): KFile =
-        KFile(fileName, pkg, importScope.imports)
+        KFile(fileName, pkg, importScope.imports.distinct(), members = members)
 }

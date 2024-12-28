@@ -15,8 +15,6 @@ data class KPackage(
         }
     }
 
-    override fun imports(): List<KImport> = emptyList()
-
     override fun toString(): String = writeToString()
 
     fun isEmpty() = path.isEmpty()

@@ -20,8 +20,6 @@ data class KImport(
         }
     }
 
-    override fun imports(): List<KImport> = emptyList()
-
     override fun toString(): String = writeToString()
 }
 

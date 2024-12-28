@@ -1,9 +1,9 @@
 package koloom
 
 import koloom.dsl.FILE
-import koloom.model.KFieldType
 import koloom.model.OVERRIDE
 import koloom.model.PRIVATE
+import koloom.model.toType
 
 fun main() {
     val file = FILE("funny.kt", "one.two.three") {
@@ -14,7 +14,9 @@ fun main() {
             +String::class
         }
 
-        OVERRIDE(); PRIVATE(); VAL("foo", KFieldType())
+        OVERRIDE()
+        PRIVATE()
+        VAL("foo", List::class.toType(String::class.toType()))
     }
     println(file)
 }

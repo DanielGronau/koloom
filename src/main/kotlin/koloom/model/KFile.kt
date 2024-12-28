@@ -16,13 +16,12 @@ data class KFile(
             kPackage.path.ifNotEmpty { appendLine() }
             imports.forEach { it.writeTo(this, indent) }
             imports.ifNotEmpty { appendLine() }
+            members.forEach { it.writeTo(this, indent) }
         }
     }
-
-    override fun imports(): List<KImport> = imports
 
     override fun toString(): String = "<$fileName>\n${writeToString()}"
 
 }
 
-interface KFileMember
+interface KFileMember: KElement

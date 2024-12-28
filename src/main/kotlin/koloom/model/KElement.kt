@@ -11,7 +11,5 @@ interface KElement {
         .also { writeTo(PrintWriter(it), indent) }
         .toString()
 
-    fun imports(): List<KImport>
-
     fun PrintWriter.indent(n: Int) = append(" ".repeat(n))
 }
