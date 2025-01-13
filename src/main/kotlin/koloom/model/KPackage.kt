@@ -1,21 +1,19 @@
 package koloom.model
 
-import java.io.PrintWriter
+import koloom.indent.Indenter
 
 val EMPTY_PACKAGE = KPackage("")
 
 data class KPackage(
     val path: String
 ) : KElement {
-    override fun writeTo(writer: PrintWriter, indent: Int) {
-        if (path.isNotEmpty()) with(writer) {
-            indent(indent)
-            append(path)
-            appendLine()
+    override fun writeTo(indenter: Indenter) {
+        if (path.isNotEmpty()) {
+            indenter.add(path)
         }
     }
 
-    override fun toString(): String = writeToString()
+    override fun toString(): String = render()
 
     fun isEmpty() = path.isEmpty()
 }

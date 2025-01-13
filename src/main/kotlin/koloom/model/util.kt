@@ -1,5 +1,7 @@
 package koloom.model
 
+import java.io.PrintWriter
+
 fun String?.ifNotEmpty(body: (String) -> Unit) {
     if (this != null && !isEmpty()) {
         body(this)
@@ -23,3 +25,5 @@ fun String.initOfPath(delimiter: String = ".") =
         lastIndexOf(delimiter) == -1 -> ""
         else -> substring(0,lastIndexOf(delimiter))
     }
+
+fun PrintWriter.indent(n: Int): PrintWriter = append(" ".repeat(n))

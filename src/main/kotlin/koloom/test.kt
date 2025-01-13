@@ -14,8 +14,8 @@ fun main() {
             +String::class
         }
 
-        OVERRIDE()
-        PRIVATE()
+        OVERRIDE
+        PRIVATE
         VAL("foo", List::class.toType(String::class.toType()))
     }
     println(file)

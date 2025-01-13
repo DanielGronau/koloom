@@ -1,6 +1,7 @@
 package koloom.model
 
-import java.io.PrintWriter
+import koloom.indent.Indenter
+import koloom.indent.Line
 
 enum class KFieldKind {
     KVAL, KVAR
@@ -16,28 +17,26 @@ data class KField(
     val modifiers: List<KModifier> = emptyList(),
     val annotations: List<KAnnotation> = emptyList(),
 ) : KElement, KFileMember {
-    override fun writeTo(writer: PrintWriter, indent: Int) {
-        with(writer) {
-            indent(indent)
-            modifiers.ifNotEmpty {
-                write(it.joinToString(" ", "", " ") {
-                    it.toString().lowercase()
-                })
-            }
-            when (kind) {
-                KFieldKind.KVAL -> append("val ")
-                KFieldKind.KVAR -> append("var ")
-            }
-            write("$name: ")
-            fieldType.writeTo(this)
-            defaultValue?.also {
-                write(" = ")
-                write("<not yet implemented>")
-            }
-            appendLine()
-            // SETTER
-            // GETTER
+    override fun writeTo(indenter: Indenter) {
+        val line = Line("")
+        modifiers.ifNotEmpty {
+            line.add(it.joinToString(" ", "", " ") {
+                it.toString().lowercase()
+            })
         }
+        when (kind) {
+            KFieldKind.KVAL -> line.add("val ")
+            KFieldKind.KVAR -> line.add("var ")
+        }
+        line.add("$name: ")
+        line.add(fieldType.render())
+        defaultValue?.also {
+            line.add(" = ")
+            line.add("<not yet implemented>")
+        }
+        indenter.add(line)
+        // SETTER
+        // GETTER
     }
 }
 
