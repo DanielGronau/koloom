@@ -2,17 +2,33 @@ package koloom.indent
 
 import java.io.PrintWriter
 
-data class Line(var value: String, val indent: Int = 0) {
-    fun render(): String = " ".repeat(indent) + value + "\n"
+interface Printable {
+    fun render(): String
 
     fun writeTo(writer: PrintWriter) {
         writer.write(render())
     }
-
-    fun add(more: String) = this.apply{ this.value = value + more }
 }
 
-data class Indenter(private val lines: MutableList<Line> = mutableListOf()) {
+data class Fragment(var value: String): Printable {
+    override fun render(): String = value
+
+    fun add(more: String) = this.apply{ this.value = value + more }
+    fun add(more: Fragment) = this.apply{ this.value = value + more.value }
+}
+
+data class Line(var value: String, val indent: Int = 0): Printable {
+    override fun render(): String = " ".repeat(indent) + value + "\n"
+
+    override fun writeTo(writer: PrintWriter) {
+        writer.write(render())
+    }
+
+    fun add(more: String) = this.apply{ this.value = value + more }
+    fun add(more: Fragment) = this.apply{ this.value = value + more.value }
+}
+
+data class Indenter(private val lines: MutableList<Line> = mutableListOf()): Printable {
 
     fun add(line: Line) = this.apply {
         lines += line
@@ -28,10 +44,10 @@ data class Indenter(private val lines: MutableList<Line> = mutableListOf()) {
         }
     }
 
-    fun render(): String =
+    override fun render(): String =
         lines.joinToString(""){ it.render() }
 
-    fun writeTo(writer: PrintWriter) {
+    override fun writeTo(writer: PrintWriter) {
         lines.forEach { it.writeTo(writer) }
     }
 }

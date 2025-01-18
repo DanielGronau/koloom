@@ -1,6 +1,5 @@
 package koloom.model
 
-import koloom.indent.Indenter
 import koloom.indent.Line
 
 const val BULK_IMPORT = "_"
@@ -10,15 +9,15 @@ data class KImport(
     val ref: String = BULK_IMPORT,
     val alias: String? = null
 ) : KElement {
-    override fun writeTo(indenter: Indenter) {
+    override fun printable(): Line {
         val line = Line("import ")
         path.ifNotEmpty { line.add("$path.") }
         line.add(ref)
         alias.ifNotEmpty { line.add(" as $alias") }
-        indenter.add(line)
+        return line
     }
 
-    override fun toString(): String = render()
+    override fun toString(): String = printable().value
 }
 
 

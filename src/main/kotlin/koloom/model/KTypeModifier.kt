@@ -1,6 +1,10 @@
 package koloom.model
 
-sealed interface KTypeModifier
+import koloom.indent.Fragment
+
+sealed interface KTypeModifier : KElement {
+    override fun printable() = Fragment(toString().lowercase() + " ")
+}
 
 data object REIFIED: KTypeModifier
 data object IN: KTypeModifier

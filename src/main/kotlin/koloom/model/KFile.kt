@@ -1,6 +1,8 @@
 package koloom.model
 
+import koloom.indent.Fragment
 import koloom.indent.Indenter
+import koloom.indent.Line
 
 data class KFile(
     val fileName: String,
@@ -10,16 +12,26 @@ data class KFile(
     val annotations: List<KAnnotation> = emptyList(),
 ) : KElement {
 
-    override fun writeTo(indenter: Indenter) {
-        indenter.add(kPackage.render())
+    override fun printable(): Indenter {
+        val indenter = Indenter()
+        indenter.add(kPackage.printable())
         kPackage.path.ifNotEmpty { indenter.add() }
-        imports.forEach { indenter.add(it.render()) }
+        imports.forEach { indenter.add(it.printable()) }
         imports.ifNotEmpty { indenter.add() }
-        members.forEach { it.writeTo(indenter) }
+        members.forEach {
+            when (val p = it.printable()) {
+                is Fragment -> indenter.add(p.value)
+                is Line -> indenter.add(p)
+                is Indenter -> indenter.add(p)
+            }
+        }
+        return indenter
     }
 
-    override fun toString(): String = "<$fileName>\n${render()}"
+    override fun toString(): String = "<$fileName>\n${printable().render()}"
 
 }
 
-interface KFileMember : KElement
+interface KFileMember : KElement {
+    fun withModifiers(modifiers: List<KModifier>): KFileMember
+}

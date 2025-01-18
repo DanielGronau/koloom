@@ -1,21 +1,25 @@
 package koloom.model
 
-import koloom.indent.Indenter
-import koloom.indent.Line
+import koloom.indent.Fragment
 import kotlin.reflect.KClass
 
 sealed interface KFieldType : KElement {
     fun imports(): List<KImport>
+    override fun printable(): Fragment
 }
 
 data class KFieldTypeClass(val path: String, val name: String, val typeParameters: List<KFieldType> = emptyList()) :
     KFieldType {
-    override fun writeTo(indenter: Indenter) {
-        val line = Line(name)
+    override fun printable(): Fragment {
+        val fragment = Fragment(name)
         typeParameters.ifNotEmpty {
-            line.add(it.joinToString(", ", "<", ">") { it.render() })
+            fragment.add("<")
+            typeParameters.forEach { it: KFieldType ->
+                fragment.add(it.printable())
+            }
+            fragment.add(">")
         }
-        indenter.add(line)
+        return fragment
     }
 
     override fun imports(): List<KImport> = listOf(KImport(path, name)) +
@@ -37,15 +41,16 @@ data class KFieldTypeParameter(
     val baseType: KFieldType? = null,
     val modifiers: List<KTypeModifier> = emptyList()
 ) : KFieldType {
-    override fun writeTo(indenter: Indenter) {
-        val line = Line("")
-        line.add(modifiers.joinToString(" ", "", " "))
-        line.add(name)
+    override fun printable() : Fragment {
+        val fragment = Fragment("")
+        modifiers.forEach { fragment.add(it.printable()) }
+        fragment.add(modifiers.joinToString(" ", "", " "))
+        fragment.add(name)
         if (baseType != null) {
-            line.add(": ")
-            line.add(baseType.render())
+            fragment.add(": ")
+            fragment.add(baseType.printable())
         }
-        indenter.add(line)
+        return fragment
     }
 
     override fun imports(): List<KImport> = emptyList()

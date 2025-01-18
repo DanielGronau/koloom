@@ -1,6 +1,10 @@
 package koloom.model
 
-sealed interface KModifier
+import koloom.indent.Fragment
+
+sealed interface KModifier: KElement {
+    override fun printable() = Fragment(toString().lowercase() + " ")
+}
 
 data object PUBLIC : KModifier
 data object PRIVATE : KModifier

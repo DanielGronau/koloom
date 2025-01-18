@@ -11,6 +11,7 @@ import koloom.model.KModifier
 import koloom.model.KPackage
 import koloom.model.initOfPath
 import koloom.model.lastOfPath
+import koloom.model.toType
 import kotlin.reflect.KClass
 
 fun FILE(fileName: String, pkg: String = "", body: FileScope.() -> Unit): KFile =
@@ -21,9 +22,10 @@ fun FILE(fileName: String, pkg: String = "", body: FileScope.() -> Unit): KFile 
 @KoloomDsl
 class FileScope {
 
+    object Terminal
+
     val importScope = ImportScope()
     val members = mutableListOf<KFileMember>()
-    val modifierStack = mutableListOf<KModifier>()
 
     fun IMPORTS(body: ImportScope.() -> Unit) {
         with(importScope) { body() }
@@ -46,24 +48,30 @@ class FileScope {
         }
     }
 
-    fun VAL(name: String, type: KFieldType, defaultValue: KExpression? = null) {
+    fun VAL(name: String, type: KFieldType, defaultValue: KExpression? = null): Terminal {
         members += KField(
             kind = KFieldKind.KVAL,
             name = name,
             fieldType = type,
             defaultValue = defaultValue,
-            modifiers = modifierStack.toList(),
+            modifiers = emptyList(),
             annotations = emptyList()
         ).also {
-            modifierStack.clear()
             importScope.imports += it.fieldType.imports()
         }
-
+        return Terminal
     }
+    fun VAL(name: String, type: KClass<*>, defaultValue: KExpression? = null): Terminal =
+        VAL(name, type.toType(), defaultValue)
 
-    operator fun KModifier.invoke() {
-        modifierStack += this
+    operator fun KModifier.rangeTo(mc: Terminal) {
+        members[members.lastIndex] = members.last().withModifiers(listOf(this))
     }
+    operator fun List<KModifier>.rangeTo(mc: Terminal) {
+        members[members.lastIndex] = members.last().withModifiers(this)
+    }
+    operator fun KModifier.rangeTo(modifier: KModifier) = listOf(this, modifier)
+    operator fun List<KModifier>.rangeTo(modifier: KModifier) = this + modifier
 
     fun build(fileName: String, pkg: KPackage): KFile =
         KFile(fileName, pkg, importScope.imports.distinct(), members = members)
