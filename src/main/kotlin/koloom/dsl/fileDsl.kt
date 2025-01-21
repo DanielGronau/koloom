@@ -4,6 +4,7 @@ import koloom.model.KExpression
 import koloom.model.KField
 import koloom.model.KFieldKind
 import koloom.model.KFieldType
+import koloom.model.KFieldTypeClass
 import koloom.model.KFile
 import koloom.model.KFileMember
 import koloom.model.KImport
@@ -11,6 +12,7 @@ import koloom.model.KModifier
 import koloom.model.KPackage
 import koloom.model.initOfPath
 import koloom.model.lastOfPath
+import koloom.model.toImport
 import koloom.model.toType
 import kotlin.reflect.KClass
 
@@ -23,32 +25,24 @@ fun FILE(fileName: String, pkg: String = "", body: FileScope.() -> Unit): KFile 
 class FileScope {
 
     object Terminal
+    object IMPORT
 
-    val importScope = ImportScope()
+    val imports = mutableListOf<KImport>()
     val members = mutableListOf<KFileMember>()
 
-    fun IMPORTS(body: ImportScope.() -> Unit) {
-        with(importScope) { body() }
+    operator fun IMPORT.rangeTo(string: String): Terminal = Terminal.also {
+        imports += KImport(string.initOfPath(), string.lastOfPath())
     }
 
-    @KoloomDsl
-    class ImportScope {
-        var imports = mutableListOf<KImport>()
-
-        operator fun String.unaryPlus() {
-            imports += KImport(initOfPath(), lastOfPath())
-        }
-
-        operator fun KClass<*>.unaryPlus() {
-            imports += KImport(qualifiedName!!.initOfPath(), simpleName!!)
-        }
-
-        fun ALIAS(path: String, alias: String) {
-            imports += KImport(path.initOfPath(), path.lastOfPath(), alias)
-        }
+    operator fun IMPORT.rangeTo(kclass: KClass<*>): Terminal = Terminal.also {
+        imports += kclass.toImport()
     }
 
-    fun VAL(name: String, type: KFieldType, defaultValue: KExpression? = null): Terminal {
+    infix fun Terminal.AS(alias: String) {
+        imports[imports.lastIndex] = imports.last().copy(alias = alias)
+    }
+
+    fun VAL(name: String, type: KFieldTypeClass, defaultValue: KExpression? = null): Terminal {
         members += KField(
             kind = KFieldKind.KVAL,
             name = name,
@@ -57,7 +51,7 @@ class FileScope {
             modifiers = emptyList(),
             annotations = emptyList()
         ).also {
-            importScope.imports += it.fieldType.imports()
+            imports += it.fieldType.imports()
         }
         return Terminal
     }
@@ -74,5 +68,5 @@ class FileScope {
     operator fun List<KModifier>.rangeTo(modifier: KModifier) = this + modifier
 
     fun build(fileName: String, pkg: KPackage): KFile =
-        KFile(fileName, pkg, importScope.imports.distinct(), members = members)
+        KFile(fileName, pkg, imports.distinct(), members = members)
 }

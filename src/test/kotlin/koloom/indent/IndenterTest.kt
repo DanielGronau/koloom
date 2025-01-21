@@ -7,7 +7,26 @@ import java.io.StringWriter
 
 class IndenterTest : StringSpec({
 
-    "should add and render lines as expected" {
+    "should render fragments" {
+        val tested = Fragment("ab")
+
+        val expected = "ab"
+
+        tested.render() shouldBe expected
+        stringFromWriter(tested) shouldBe expected
+    }
+
+    "should add fragments to lines" {
+        val tested = Line("ab")
+            .add(Fragment("cd"))
+
+        val expected = "abcd\n"
+
+        tested.render() shouldBe expected
+        stringFromWriter(tested) shouldBe expected
+    }
+
+    "should add and render lines" {
         val tested = Indenter()
             .add("abc")
             .add("def", 2)
@@ -19,7 +38,7 @@ class IndenterTest : StringSpec({
         stringFromWriter(tested) shouldBe expected
     }
 
-    "should add and render other indenters as expected" {
+    "should add and render other indenters" {
         val inner = Indenter()
             .add("abc")
             .add("def", 2)
@@ -51,6 +70,6 @@ class IndenterTest : StringSpec({
     }
 })
 
-private fun stringFromWriter(indenter: Indenter) = StringWriter()
-    .also { indenter.writeTo(PrintWriter(it)) }
+private fun stringFromWriter(printable: Printable) = StringWriter()
+    .also { printable.writeTo(PrintWriter(it)) }
     .toString()

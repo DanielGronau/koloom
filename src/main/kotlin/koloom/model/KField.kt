@@ -11,7 +11,7 @@ enum class KFieldKind {
 data class KField(
     val kind: KFieldKind,
     val name: String,
-    val fieldType: KFieldType,
+    val fieldType: KFieldTypeClass,
     val defaultValue: KExpression? = null,
     val getter: KGetter? = null,
     val setter: KSetter? = null,
@@ -29,7 +29,7 @@ data class KField(
         line.add(fieldType.printable())
         defaultValue?.also {
             line.add(" = ")
-            line.add("<not yet implemented>")
+            line.add(defaultValue.printable())
         }
         return Indenter(lines = mutableListOf(line))
         // SETTER
@@ -38,8 +38,6 @@ data class KField(
 
     override fun withModifiers(modifiers: List<KModifier>): KField =copy(modifiers = modifiers)
 }
-
-class KExpression
 
 class KGetter
 
